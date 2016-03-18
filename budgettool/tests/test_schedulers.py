@@ -58,7 +58,7 @@ class _TestSchedulers(unittest.TestCase):
                 ]
 
         for test in test_items:
-            if test.step == None:
+            if test.step is None:
                 sched = schedulers.EveryNWeek(
                         test.start, test.end, iter_start=test.iter_start)
                 days_per_step = 7

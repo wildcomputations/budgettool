@@ -19,6 +19,8 @@ class Once:
             return [].__iter__()
 
 class _FixedIncrIter:
+    """Fixed increment in days
+    """
     def __init__(self, next_date, end_date, increment):
         """Increment up to, but excluding end_date
         """
