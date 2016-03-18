@@ -19,12 +19,17 @@ class Once:
             return [].__iter__()
 
 class _FixedIncrIter:
-    def __init__(self, next_date, increment):
+    def __init__(self, next_date, end_date, increment):
+        """Increment up to, but excluding end_date
+        """
         self.next_date = next_date
+        self.end_date = end_date
         self.increment = increment
     def __iter__(self):
         return self
     def __next__(self):
+        if self.next_date >= self.end_date:
+            raise StopIteration
         out = self.next_date
         self.next_date += self.increment
         return out
@@ -33,18 +38,20 @@ class EveryNWeek:
     """ Repeating schedule on weekly increments.
     For example, repeat every 2 weeks starting on Jan 1.
     """
-    def __init__(self, start, step=1, iter_start=datetime.date.today()):
+    def __init__(self, start, end, step=1, iter_start=datetime.date.today()):
         """Create the schedule. By default it will repeat every week and won't
         generate old dates before today.
 
         Params
         -----
         start - datetime.date object for the first instance of this event
+        end - cuttoff for last event to generate
         step - the number of weeks between events
         iter_start - cutoff for earliest event to generate.
         """
         self.start = start
         self.step = step * datetime.timedelta(days=7)
+        self.end = end
         self.iter_start = iter_start
 
     def __iter__(self):
@@ -55,13 +62,13 @@ class EveryNWeek:
         else:
             next_date = self.start
 
-        return _FixedIncrIter(next_date, self.step)
+        return _FixedIncrIter(next_date, self.end, self.step)
 
 class Weekly:
     """ Repeat every week on a specifc day of the week.
     For example, repeat every Tuesday.
     """
-    def __init__(self, day_of_week, iter_start=datetime.date.today()):
+    def __init__(self, day_of_week, end, iter_start=datetime.date.today()):
         """ Repeat every week on the specified day of the week.
         Defaults to only generating events in the future.
 
@@ -69,11 +76,13 @@ class Weekly:
         _______
         day_of_week: integer representation of day of the week. Monday is 0,
                  Sunday is 6.
+        end - cuttoff for last event to generate
         iter_start: cuttoff for earliest event to generate.
         """
         offset = (day_of_week - iter_start.weekday()) % 7
         self.start = iter_start + offset
+        self.end = end
 
     def __iter__(self):
-        return _FixedIncrIter(self.start, datetime.timedelta(days=7))
+        return _FixedIncrIter(self.start, self.end, datetime.timedelta(days=7))
 
