@@ -1,5 +1,6 @@
-# Classes which generate transactions based on repeating schedules.
-# dates are returned as instances of datetime.date
+""" Classes which generate transactions based on repeating schedules.
+Dates are returned as instances of datetime.date
+"""
 
 import datetime
 import math
@@ -17,20 +18,24 @@ class Once:
         else:
             return [].__iter__()
 
-class _FixedIncrItr:
+class _FixedIncrIter:
     def __init__(self, next_date, increment):
         self.next_date = next_date
         self.increment = increment
     def __iter__(self):
         return self
-    def next(self):
+    def __next__(self):
         out = self.next_date
         self.next_date += self.increment
         return out
 
 class EveryNWeek:
-    def __init__(self, start, step=1, iter_start = datetime.date.today()):
-        """ Repeating schedule on weekly increments.
+    """ Repeating schedule on weekly increments.
+    For example, repeat every 2 weeks starting on Jan 1.
+    """
+    def __init__(self, start, step=1, iter_start=datetime.date.today()):
+        """Create the schedule. By default it will repeat every week and won't
+        generate old dates before today.
 
         Params
         -----
@@ -44,7 +49,7 @@ class EveryNWeek:
 
     def __iter__(self):
         if self.start < self.iter_start:
-            delta = self._iter_start - self._start
+            delta = self.iter_start - self.start
             num_steps = math.ceil(delta / self.step)
             next_date = self.start + num_steps * self.step
         else:
@@ -53,8 +58,12 @@ class EveryNWeek:
         return _FixedIncrIter(next_date, self.step)
 
 class Weekly:
+    """ Repeat every week on a specifc day of the week.
+    For example, repeat every Tuesday.
+    """
     def __init__(self, day_of_week, iter_start=datetime.date.today()):
         """ Repeat every week on the specified day of the week.
+        Defaults to only generating events in the future.
 
         Params
         _______
@@ -64,7 +73,6 @@ class Weekly:
         """
         offset = (day_of_week - iter_start.weekday()) % 7
         self.start = iter_start + offset
-            
 
     def __iter__(self):
         return _FixedIncrIter(self.start, datetime.timedelta(days=7))

@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
-from ..schedulers import *
+"""Unit test for schedulers
+"""
 
 import datetime
 import unittest
 
+from .. import schedulers
+
 class _TestSchedulers(unittest.TestCase):
     def test_once(self):
+        """Test Once schedule
+        """
         earlier = datetime.date(2015, 10, 3)
         later = datetime.date(2016, 2, 15)
 
-        sched = Once(later, earlier)
+        sched = schedulers.Once(later, earlier)
         out = [x for x in sched]
         self.assertEqual(out, [later])
 
-        sched = Once(earlier, later)
+        sched = schedulers.Once(earlier, later)
         out = [x for x in sched]
         self.assertEqual(out, [])
 
@@ -21,15 +26,15 @@ class _TestSchedulers(unittest.TestCase):
         tomorrow = datetime.date.today() + datetime.timedelta(1)
         yesterday = datetime.date.today() - datetime.timedelta(1)
 
-        sched = Once(tomorrow)
+        sched = schedulers.Once(tomorrow)
         out = [x for x in sched]
         self.assertEqual(out, [tomorrow])
 
-        sched = Once(today)
+        sched = schedulers.Once(today)
         out = [x for x in sched]
         self.assertEqual(out, [today])
 
-        sched = Once(yesterday)
+        sched = schedulers.Once(yesterday)
         out = [x for x in sched]
         self.assertEqual(out, [])
 
