@@ -82,7 +82,7 @@ class Weekly:
         iter_start: cuttoff for earliest event to generate.
         """
         offset = (day_of_week - iter_start.weekday()) % 7
-        self.start = iter_start + offset
+        self.start = iter_start + datetime.timedelta(offset)
         self.end = end
 
     def __iter__(self):

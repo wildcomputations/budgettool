@@ -16,11 +16,11 @@ class _TestSchedulers(unittest.TestCase):
         later = date(2016, 2, 15)
 
         sched = schedulers.Once(later, earlier)
-        out = [x for x in sched]
+        out = list(sched)
         self.assertEqual(out, [later])
 
         sched = schedulers.Once(earlier, later)
-        out = [x for x in sched]
+        out = list(sched)
         self.assertEqual(out, [])
 
         today = date.today()
@@ -28,15 +28,15 @@ class _TestSchedulers(unittest.TestCase):
         yesterday = date.today() - timedelta(1)
 
         sched = schedulers.Once(tomorrow)
-        out = [x for x in sched]
+        out = list(sched)
         self.assertEqual(out, [tomorrow])
 
         sched = schedulers.Once(today)
-        out = [x for x in sched]
+        out = list(sched)
         self.assertEqual(out, [today])
 
         sched = schedulers.Once(yesterday)
-        out = [x for x in sched]
+        out = list(sched)
         self.assertEqual(out, [])
 
     def test_every_n_week(self):
@@ -67,7 +67,7 @@ class _TestSchedulers(unittest.TestCase):
                         test.start, test.end, test.step, iter_start=test.iter_start)
                 days_per_step = 7 * test.step
 
-            out = [x for x in sched]
+            out = list(sched)
             self.assertGreaterEqual(out[0], test.start)
             self.assertGreaterEqual(out[0], test.iter_start)
             delta_to_start = out[0] - test.start
@@ -83,19 +83,19 @@ class _TestSchedulers(unittest.TestCase):
         # end == start
         sched = schedulers.EveryNWeek(
                 date(2015, 3, 2), date(2015, 3, 2), iter_start=date(2015, 1, 1))
-        out = [x for x in sched]
+        out = list(sched)
         self.assertEqual(out, [])
 
         # end < start
         sched = schedulers.EveryNWeek(
                 date(2015, 10, 30), date(2015, 8, 1), iter_start=date(2015, 1, 1))
-        out = [x for x in sched]
+        out = list(sched)
         self.assertEqual(out, [])
 
         # iter_start < end
         sched = schedulers.EveryNWeek(
                 date(2015, 3, 2), date(2015, 10, 30), iter_start=date(2016, 1, 1))
-        out = [x for x in sched]
+        out = list(sched)
         self.assertEqual(out, [])
 
         # test default value for iter_start. Should be today
@@ -104,6 +104,41 @@ class _TestSchedulers(unittest.TestCase):
                 date.today() + timedelta(365))
         event = next(iter(sched))
         self.assertEqual(event, date.today() + timedelta(6))
+
+    def test_weekly(self):
+        monday = date(2016, 3, 14)
+        tuesday = date(2016, 3, 15)
+        wednesday = date(2016, 3, 16)
+        thursday = date(2016, 3, 17)
+        friday = date(2016, 3, 18)
+        saturday = date(2016, 3, 19)
+        sunday = date(2016, 3, 20)
+
+        start = date(2016, 3, 14)
+        num = 5
+        end = start + timedelta(num * 7)
+
+        weekdays = {
+                0:monday,
+                1:tuesday,
+                2:wednesday,
+                3:thursday,
+                4:friday,
+                5:saturday,
+                6:sunday
+                }
+
+        for day_id, first_date in weekdays.items():
+            sched = schedulers.Weekly(day_id, end, start)
+            out = list(sched)
+            self.assertEqual(len(out), num)
+            for x in range(num):
+                self.assertEqual(out[x], first_date + x * timedelta(7))
+
+        tomorrow = date.today() + timedelta(1)
+        sched = schedulers.Weekly(tomorrow.weekday(), tomorrow + timedelta(7))
+        out = list(sched)
+        self.assertEqual(out, [tomorrow])
 
 if __name__ == '__main__':
     unittest.main()
