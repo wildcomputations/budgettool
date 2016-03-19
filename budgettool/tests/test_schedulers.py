@@ -118,6 +118,9 @@ class TestSchedulers(unittest.TestCase):
         out = list(sched.view(end=date(2015, 10, 30), start=date(2016, 1, 1)))
         self.assertEqual(out, [])
 
+    def test_every_n_month(self):
+        self.fail()
+
     def test_weekly(self):
         monday = date(2016, 3, 14)
         tuesday = date(2016, 3, 15)
@@ -181,6 +184,31 @@ class TestSchedulers(unittest.TestCase):
             view_with_duration = sched.view(test.view_start,
                     duration = test.view_end - test.view_start)
             self.assertEqual(list(view_with_end), list(view_with_duration))
+
+    def test_monthly(self):
+        TestItem = namedtuple("TestItem", ['year', 'month', 'day', 'start_day'])
+
+        test_cases = []
+        for year in range(2010, 2017):
+            for month in range(1, 12):
+                for day_of_month in range(1, 28):
+                    for start_day in range(1, 28):
+                        test_cases.append(
+                                TestItem(year, month, day_of_month, start_day))
+        for test in test_cases:
+            sched = schedulers.Monthly(test.day, 
+                    date(test.year + 1, test.month, 28),
+                    date(test.year, test.month, test.start_day))
+            out = list(sched)
+            self.assertEqual(len(out), 12)
+            for x in out:
+                self.assertEqual(x.day, test.day)
+
+            start = out[0]
+            for x in range(len(out)):
+                self.assertGreater((out[x] - start).days, x * 30 - 3)
+                self.assertLess((out[x] - start).days, x * 30 + 3)
+
 
 if __name__ == '__main__':
     unittest.main()
