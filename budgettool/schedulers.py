@@ -5,6 +5,7 @@ Dates are returned as instances of datetime.date
 from calendar import monthrange
 import datetime
 import math
+from .fileutils import str_to_date, str_to_weekday, get_default
 
 def _check_calc_date_range(schedule_start,
                            user_start,
@@ -307,3 +308,43 @@ class Monthly:
         start.replace(day=1)
 
         return _MonthIncrContainer(start, self.day_of_month, end, 1)
+
+
+def _once(schedule):
+    start = get_default('start', schedule, None, str_to_date)
+    end = get_default('end', schedule, None, str_to_date)
+    date = str_to_date(schedule['date'])
+    return Once(date)
+
+def _everynweek(schedule):
+    start = get_default('start', schedule, None, str_to_date)
+    end = get_default('end', schedule, None, str_to_date)
+    step = get_default('step', schedule, 1, int)
+    return EveryNWeek(start, step, end)
+
+def _everynmonth(schedule):
+    start = get_default('start', schedule, None, str_to_date)
+    end = get_default('end', schedule, None, str_to_date)
+    step = get_default('step', schedule, 1, int)
+    return EveryNMonth(start, end, step)
+
+def _weekly(schedule):
+    start = get_default('start', schedule, None, str_to_date)
+    end = get_default('end', schedule, None, str_to_date)
+    day_of_week = str_to_weekday(schedule['day'])
+    return Weekly(day_of_week, start, end)
+
+def _monthly(schedule):
+    start = get_default('start', schedule, None, str_to_date)
+    end = get_default('end', schedule, None, str_to_date)
+    day_of_month = int(schedule['day'])
+    return Monthly(day_of_month, start, end)
+
+def get_schedule(schedule):
+    return {
+        'once'        : _once,
+        'everynweek'  : _everynweek,
+        'everynmonth' : _everynmonth,
+        'weekly'      : _weekly,
+        'monthly'     : _monthly,
+    }[schedule['type'].lower()](schedule)
