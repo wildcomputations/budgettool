@@ -16,11 +16,11 @@ class TestSchedulers(unittest.TestCase):
         later = date(2016, 2, 15)
 
         sched = schedulers.Once(later)
-        out = list(sched.view(start=earlier))
+        out = list(sched.view(earlier, duration=timedelta(600)))
         self.assertEqual(out, [later])
 
         sched = schedulers.Once(earlier)
-        out = list(sched.view(later))
+        out = list(sched.view(later, duration=timedelta(600)))
         self.assertEqual(out, [])
 
         sched = schedulers.Once(date(2016, 1, 6))
@@ -36,24 +36,8 @@ class TestSchedulers(unittest.TestCase):
         self.assertEqual(out, [])
 
         sched = schedulers.Once(later)
-        out = list(sched.view(start=earlier))
+        out = list(sched.view(earlier, end=later+timedelta(1)))
         self.assertEqual(out, [later])
-
-        today = date.today()
-        tomorrow = date.today() + timedelta(1)
-        yesterday = date.today() - timedelta(1)
-
-        sched = schedulers.Once(tomorrow)
-        out = list(sched.view())
-        self.assertEqual(out, [tomorrow])
-
-        sched = schedulers.Once(today)
-        out = list(sched.view())
-        self.assertEqual(out, [today])
-
-        sched = schedulers.Once(yesterday)
-        out = list(sched.view())
-        self.assertEqual(out, [])
 
     def test_every_n_week(self):
         """Test events that repeat on multi-week interval
@@ -64,13 +48,13 @@ class TestSchedulers(unittest.TestCase):
         # to run
         test_items = [
                 TestItem(date(2011, 5, 20), date(2012, 1, 1),
-                    None, date(2011, 5, 20), None),
+                    None, date(2011, 5, 20), date(2012, 1, 1)),
                 TestItem(date(2012, 3, 1), date(2040, 12, 31),
-                    52, date(2012, 3, 1), None),
+                    52, date(2012, 3, 1), date(2040, 12, 31)),
                 TestItem(date(2011, 5, 20), date(2012, 1, 1),
-                    3, date(2011, 1, 1), None),
+                    3, date(2011, 1, 1), date(2012, 1, 1)),
                 TestItem(date(2010, 3, 8), date(2012, 1, 1),
-                    4, date(2011, 5, 20), None),
+                    4, date(2011, 5, 20), date(2012, 1, 1)),
                 TestItem(date(2011, 5, 20), None,
                     None, date(2011, 5, 20), date(2012, 1, 1)),
                 TestItem(date(2012, 3, 1), None,
@@ -91,10 +75,7 @@ class TestSchedulers(unittest.TestCase):
                 days_per_step = 7 * test.step
                 sched = schedulers.EveryNWeek(test.start, test.step, test.end)
 
-            if test.iter_end is None:
-                out = list(sched.view(start=test.iter_start))
-            else:
-                out = list(sched.view(start=test.iter_start, end=test.iter_end))
+            out = list(sched.view(start=test.iter_start, end=test.iter_end))
             self.assertGreaterEqual(out[0], test.start)
             self.assertGreaterEqual(out[0], test.iter_start)
             delta_to_start = out[0] - test.start
@@ -137,11 +118,6 @@ class TestSchedulers(unittest.TestCase):
         out = list(sched.view(end=date(2015, 10, 30), start=date(2016, 1, 1)))
         self.assertEqual(out, [])
 
-        # test default value for iter_start. Should be today
-        sched = schedulers.EveryNWeek(date.today() - timedelta(7 * 100 + 1))
-        event = next(iter(sched.view(end=date.today() + timedelta(365))))
-        self.assertEqual(event, date.today() + timedelta(6))
-
     def test_weekly(self):
         monday = date(2016, 3, 14)
         tuesday = date(2016, 3, 15)
@@ -171,11 +147,6 @@ class TestSchedulers(unittest.TestCase):
             self.assertEqual(len(out), num)
             for x in range(num):
                 self.assertEqual(out[x], first_date + x * timedelta(7))
-
-        tomorrow = date.today() + timedelta(1)
-        sched = schedulers.Weekly(tomorrow.weekday())
-        out = list(sched.view(end=tomorrow + timedelta(7)))
-        self.assertEqual(out, [tomorrow])
 
         TestRanges = namedtuple("TestRanges",
                 ["sched_start", "sched_end", "view_start", "view_end"])

@@ -5,36 +5,28 @@ Dates are returned as instances of datetime.date
 import datetime
 import math
 
-def _check_calc_date_range(default_start,
+def _check_calc_date_range(schedule_start,
         user_start,
-        default_end,
+        schedule_end,
         user_end,
         user_duration):
     """ Helper function to compute an end date from a start and an end date or
     duration which may be none.
     """
-    if user_start is None:
-        start = default_start
-    else:
+    if schedule_start is None:
         start = user_start
-
-    if start is None:
-        raise ValueError("No start specified")
-    if default_start is not None:
-        start = max(default_start, start)
+    else:
+        start = max(schedule_start, user_start)
 
     if user_end is not None:
         end = user_end
     elif user_duration is not None:
         end = user_start + user_duration
     else:
-        end = default_end
-
-    if end is None:
         raise ValueError("No end specified")
 
-    if default_end is not None:
-        end = min(end, default_end)
+    if schedule_end is not None:
+        end = min(end, schedule_end)
 
     return start, end
 
@@ -44,7 +36,7 @@ class Once:
     def __init__(self, date):
         self.date = date
 
-    def view(self, start=datetime.date.today(), end=None, duration=None):
+    def view(self, start, end=None, duration=None):
         start, end = _check_calc_date_range(
                 self.date, start,
                 self.date + datetime.timedelta(1), end, duration)
@@ -87,8 +79,7 @@ class EveryNWeek:
     For example, repeat every 2 weeks starting on Jan 1.
     """
     def __init__(self, start, step=1, end=None):
-        """Create the schedule. By default it will repeat every week and won't
-        generate old dates before today.
+        """Create the schedule. By default it will repeat every week.
 
         Params
         -----
@@ -100,7 +91,7 @@ class EveryNWeek:
         self.step = step
         self.end = end
 
-    def view(self, start=datetime.date.today(), end=None, duration=None):
+    def view(self, start, end=None, duration=None):
         iter_start, iter_end = _check_calc_date_range(
                 self.start, start,
                 self.end, end, duration)
@@ -137,7 +128,7 @@ class Weekly:
         self.start = start
         self.end = end
 
-    def view(self, start=datetime.date.today(), end=None, duration=None):
+    def view(self, start, end=None, duration=None):
         iter_start, iter_end = _check_calc_date_range(
                 self.start, start,
                 self.end, end, duration)
