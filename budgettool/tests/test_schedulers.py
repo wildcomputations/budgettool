@@ -129,7 +129,8 @@ class TestSchedulers(unittest.TestCase):
 
         start = date(2016, 3, 14)
         num = 5
-        end = start + timedelta(num * 7)
+        # inclusive of end date
+        end = start + timedelta(num * 7 - 1)
 
         weekdays = {
                 0:monday,

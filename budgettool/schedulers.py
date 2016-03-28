@@ -6,10 +6,10 @@ import datetime
 import math
 
 def _check_calc_date_range(schedule_start,
-        user_start,
-        schedule_end,
-        user_end,
-        user_duration):
+                           user_start,
+                           schedule_end,
+                           user_end,
+                           user_duration):
     """ Helper function to compute an end date from a start and an end date or
     duration which may be none.
     """
@@ -21,7 +21,7 @@ def _check_calc_date_range(schedule_start,
     if user_end is not None:
         end = user_end
     elif user_duration is not None:
-        end = user_start + user_duration
+        end = user_start + user_duration - datetime.timedelta(1)
     else:
         raise ValueError("No end specified")
 
@@ -37,10 +37,22 @@ class Once:
         self.date = date
 
     def view(self, start, end=None, duration=None):
-        start, end = _check_calc_date_range(
-                self.date, start,
-                self.date + datetime.timedelta(1), end, duration)
-        if start <= self.date and self.date < end:
+        """Generate the subset of events within a date window.
+
+        Must specify either an end or a duration.
+
+        Parameters
+        ---
+        start - start date
+        end - (optional) the last day in the window.
+        duration - (optional) duration for the window.
+        """
+        start, end = _check_calc_date_range(self.date,
+                                            start,
+                                            self.date + datetime.timedelta(1),
+                                            end,
+                                            duration)
+        if start <= self.date and self.date <= end:
             return [self.date]
         else:
             return []
@@ -49,14 +61,14 @@ class _FixedIncrIter:
     """Fixed increment in days
     """
     def __init__(self, container):
-        """Increment up to, but excluding end_date
+        """Increment up to, and including end_date
         """
         self.container = container
         self.next_date = container.start_date
     def __iter__(self):
         return self
     def __next__(self):
-        if self.next_date >= self.container.end_date:
+        if self.next_date > self.container.end_date:
             raise StopIteration
         out = self.next_date
         self.next_date += self.container.increment
@@ -66,7 +78,7 @@ class _FixedIncrContainer:
     """Fixed increment in days
     """
     def __init__(self, start_date, end_date, increment):
-        """Increment up to, but excluding end_date
+        """Increment up to, and including end_date
         """
         self.start_date = start_date
         self.end_date = end_date
@@ -92,9 +104,19 @@ class EveryNWeek:
         self.end = end
 
     def view(self, start, end=None, duration=None):
+        """The subset of events which fall within a window.
+
+        Parameters
+        -----
+        start - start of the window
+        end - (optional) the last day in the window
+        duration - (optional) the length of the window as a timedelta.
+
+        Must specify either an end or a duration.
+        """
         iter_start, iter_end = _check_calc_date_range(
-                self.start, start,
-                self.end, end, duration)
+            self.start, start,
+            self.end, end, duration)
         if iter_start >= iter_end:
             return []
 
@@ -129,10 +151,20 @@ class Weekly:
         self.end = end
 
     def view(self, start, end=None, duration=None):
+        """The subset of events which fall within a window.
+
+        Parameters
+        -----
+        start - start of the window
+        end - (optional) the last day in the window
+        duration - (optional) the length of the window as a timedelta.
+
+        Must specify either an end or a duration.
+        """
         iter_start, iter_end = _check_calc_date_range(
-                self.start, start,
-                self.end, end, duration)
-        if iter_start >= iter_end:
+            self.start, start,
+            self.end, end, duration)
+        if iter_start > iter_end:
             return []
 
         offset = (self.day_of_week - iter_start.weekday()) % 7
