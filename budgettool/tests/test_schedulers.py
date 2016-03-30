@@ -4,6 +4,7 @@
 
 from collections import namedtuple
 from datetime import date, timedelta
+import math
 import unittest
 
 from .. import schedulers
@@ -119,7 +120,37 @@ class TestSchedulers(unittest.TestCase):
         self.assertEqual(out, [])
 
     def test_every_n_month(self):
-        self.fail()
+        TestCase = namedtuple("TestCase",
+                ['start', 'step', 'view_start', 'view_duration'])
+
+        test_cases = []
+        for year in range(2000, 2003):
+            for start_day in range(1, 365, 17):
+                for step in range(1, 4):
+                    for view_start in range(-100, 100, 27):
+                        for view_duration in range(step * 2, step * 10, 6):
+                            start_date = date(
+                                    year,
+                                    math.ceil(start_day / 31), 
+                                    start_day % 28)
+
+                            test_cases.append(TestCase(
+                                    start_date,
+                                    step,
+                                    start_date + timedelta(view_start),
+                                    timedelta(view_duration * 31)))
+
+        for test in test_cases:
+            sched = schedulers.EveryNMonth(
+                    test.start, test.step)
+            out=list(sched.view(test.view_start, duration=test.view_duration))
+
+            for x in out:
+                self.assertEqual(x.day, test.start.day)
+
+                self.assertLessEqual(x, test.view_start + test.view_duration)
+                self.assertGreaterEqual(x, test.view_start)
+                self.assertGreaterEqual(x, test.start)
 
     def test_weekly(self):
         monday = date(2016, 3, 14)
