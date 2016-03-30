@@ -191,23 +191,28 @@ class TestSchedulers(unittest.TestCase):
         test_cases = []
         for year in range(2010, 2017):
             for month in range(1, 12):
-                for day_of_month in range(1, 28):
-                    for start_day in range(1, 28):
+                for day_of_month in range(1, 28, 2):
+                    for start_day in range(1, 28, 3):
                         test_cases.append(
                                 TestItem(year, month, day_of_month, start_day))
         for test in test_cases:
-            sched = schedulers.Monthly(test.day, 
-                    date(test.year + 1, test.month, 28),
-                    date(test.year, test.month, test.start_day))
-            out = list(sched)
-            self.assertEqual(len(out), 12)
+            sched = schedulers.Monthly(test.day)
+            out = list(sched.view(
+                start=date(test.year, test.month, test.start_day),
+                end=date(test.year + 1, test.month, 28)))
+            
+            if test.start_day <= test.day:
+                # 13 because end is included
+                self.assertEqual(len(out), 13)
+            else:
+                self.assertEqual(len(out), 12)
             for x in out:
                 self.assertEqual(x.day, test.day)
 
             start = out[0]
             for x in range(len(out)):
-                self.assertGreater((out[x] - start).days, x * 30 - 3)
-                self.assertLess((out[x] - start).days, x * 30 + 3)
+                self.assertGreater((out[x] - start).days, x * 30.4 - 3)
+                self.assertLess((out[x] - start).days, x * 30.4 + 3)
 
 
 if __name__ == '__main__':

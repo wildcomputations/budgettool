@@ -64,29 +64,41 @@ class _DayIncrContainer:
 class _MonthIncrIter:
     """Increment in months."""
 
-    def __init__(self, next_month, day, end_date, increment):
-        """Start at next_date, increment up to but not including end_date.
-
-        Increment by 'increment' months.
-        """
-        self.next_month = next_month
-        self.day = day
-        self.end_date = end_date
-        self.increment = increment
+    def __init__(self, container):
+        """Increment through the virtual container of _MonthIncrContainer."""
+        self.container = container
+        self.next_month = container.start_month
     def __iter__(self):
         return self
     def __next__(self):
         out = self.next_month.replace(
-                day = min(self.day,
+                day = min(self.container.day,
                     monthrange(self.next_month.year, self.next_month.month)[1]))
-        if out >= self.end_date:
+        if out > self.container.end_date:
             raise StopIteration
 
-        next_month = self.next_month.month + self.increment
-        next_year = self.next_month.year + (next_month - 1) // 12 + 1
+        next_month = self.next_month.month + self.container.increment
+        next_year = self.next_month.year + (next_month - 1) // 12
         self.next_month = datetime.date(next_year, (next_month - 1) % 12 + 1, 1)
 
         return out
+
+class _MonthIncrContainer:
+    """Increment in months."""
+
+    def __init__(self, start_month, day, end_date, increment):
+        """Start at next_date, increment up to and including end_date.
+
+        Increment by 'increment' months.
+        """
+        self.start_month = start_month
+        self.day = day
+        self.end_date = end_date
+        self.increment = increment
+
+    def __iter__(self):
+        return _MonthIncrIter(self)
+
 
 class Once:
     """ One time transaction. Generates a single event on the specified date.
@@ -164,20 +176,39 @@ class EveryNMonth:
     """Event repeats on the same day every month.
     """
 
-    def __init__(self, start, end, step=1, iter_start=datetime.date.today()):
+    def __init__(self, start, step=1, end=None):
         """
         Specify how often this schedule repeats and the day of month to repeat on.
 
         Params
         ------
         day_of_month - day of the month.
-        end - cuttoff for last date to generate (non-inclusive)
         step - how many months between repeats
-        iter_start - cuttoff for the first instance to generate
+        end - cuttoff for last date to generate (non-inclusive)
         """
+        self.start = start
         self.step = step
         self.end = end
-        self.day = start.day
+
+    def view(self, start, end=None, duration=None):
+        """The subset of events which fall within a window.
+
+        Parameters
+        -----
+        start - start of the window
+        end - (optional) the last day in the window
+        duration - (optional) the length of the window as a timedelta.
+
+        Must specify either an end or a duration here or in constructor.
+        """
+        iter_start, iter_end = _check_calc_date_range(
+            self.start, start,
+            self.end, end, duration)
+        if iter_start >= iter_end:
+            return []
+
+        day = self.start.day
+        start = self.start
 
         if start < iter_start:
             delta_year = iter_start.year - start.year
@@ -191,12 +222,9 @@ class EveryNMonth:
             start_year = iter_start.year + start_month // 12
             start_month = 1 + (start_month_0 % 12)
 
-            self.start = date(start_year, start_month, 1)
-        else:
-            self.start = start
+            start = date(start_year, start_month, 1)
 
-    def __iter__(self):
-        return _MonthIncrIter(self.start, self.day, self.end, self.step)
+        return _MonthIncrContainer(start, day, iter_end, self.step)
 
 class Weekly:
     """ Repeat every week on a specifc day of the week.
@@ -242,7 +270,7 @@ class Weekly:
 class Monthly:
     """Repeat every month on the specified day"""
 
-    def __init__(self, day_of_month, end, iter_start=datetime.date.today()):
+    def __init__(self, day_of_month, start=None, end=None):
         """Create a schedule which repeats every month on a specific day.
 
         Parameters
@@ -251,13 +279,31 @@ class Monthly:
         end - end date. No events generated past this date.
         iter_start - first day to consider generating an event.
         """
-        self.start = iter_start
-        if iter_start.day > day_of_month:
-            self.start.day = 1
-            self.start += timedelta(31)
-
+        self.day_of_month = day_of_month
+        self.start = start
         self.end = end
-        self.day = day_of_month
 
-    def __iter__(self):
-        return _MonthIncrIter(self.start, self.day, self.end, 1)
+    def view(self, start, end=None, duration=None):
+        """The subset of events which fall within a window.
+
+        Parameters
+        -----
+        start - start of the window
+        end - (optional) the last day in the window
+        duration - (optional) the length of the window as a timedelta.
+
+        Must specify either an end or a duration here or in constructor.
+        """
+        iter_start, iter_end = _check_calc_date_range(
+            self.start, start,
+            self.end, end, duration)
+        if iter_start >= iter_end:
+            return []
+
+        start = iter_start
+        if iter_start.day > self.day_of_month:
+            start.replace(day=1)
+            start += datetime.timedelta(31)
+        start.replace(day=1)
+
+        return _MonthIncrContainer(start, self.day_of_month, end, 1)
