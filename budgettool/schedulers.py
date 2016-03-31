@@ -72,7 +72,7 @@ class _MonthIncrIter:
         return self
     def __next__(self):
         out = self.next_month.replace(
-                day = min(self.container.day,
+            day=min(self.container.day,
                     monthrange(self.next_month.year, self.next_month.month)[1]))
         if out > self.container.end_date:
             raise StopIteration
@@ -217,7 +217,7 @@ class EveryNMonth:
                 delta_month += 1
 
             extra_months_needed = delta_month + ((-delta_month) % self.step)
-            
+
             start_month_0 = self.start.month + extra_months_needed - 1
             start_year = self.start.year + start_month_0 // 12
             start_month = 1 + (start_month_0 % 12)
