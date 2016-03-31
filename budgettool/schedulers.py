@@ -211,24 +211,18 @@ class EveryNMonth:
         start = self.start
 
         if start < iter_start:
-            print("initial start", start,
-                    "iter_start", iter_start)
-            delta_year = iter_start.year - start.year
-            delta_month = iter_start.month - start.month + 12 * delta_year
-            if iter_start.day > start.day:
+            delta_year = iter_start.year - self.start.year
+            delta_month = iter_start.month - self.start.month + 12 * delta_year
+            if iter_start.day > self.start.day:
                 delta_month += 1
-            print("delta month", delta_month)
 
-            extra_months_needed = (-delta_month) % self.step
-            print("extra months", extra_months_needed,
-                    "step", self.step)
+            extra_months_needed = delta_month + ((-delta_month) % self.step)
             
-            start_month_0 = iter_start.month + extra_months_needed - 1
-            start_year = iter_start.year + start_month_0 // 12
+            start_month_0 = self.start.month + extra_months_needed - 1
+            start_year = self.start.year + start_month_0 // 12
             start_month = 1 + (start_month_0 % 12)
 
             start = datetime.date(start_year, start_month, 1)
-            print("computed start", start)
 
         return _MonthIncrContainer(start, day, iter_end, self.step)
 

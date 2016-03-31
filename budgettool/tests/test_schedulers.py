@@ -152,6 +152,12 @@ class TestSchedulers(unittest.TestCase):
                 self.assertGreaterEqual(x, test.view_start)
                 self.assertGreaterEqual(x, test.start)
 
+        # specific cases
+        sched = schedulers.EveryNMonth(
+                date(2000, 5, 12), 4)
+        out = list(sched.view(date(2000, 6, 14), date(2000, 12, 1)))
+        self.assertEqual(out, [date(2000, 9, 12)])
+
     def test_weekly(self):
         monday = date(2016, 3, 14)
         tuesday = date(2016, 3, 15)
