@@ -1,35 +1,7 @@
 import datetime
 from . import schedulers
+from .transaction import TemplateTransaction
 from .fileutils import str_to_date, date_to_str, dict_to_duration, duration_to_dict, get_default
-
-class Item:
-    @staticmethod
-    def from_dict(data):
-        name     = data['name']
-        category = data['category']
-        amount   = data['amount']
-        schedule = schedulers.from_dict(data['schedule'])
-        return Item(name=name, category=category, amount=amount, schedule=schedule)
-
-    def __init__(self, name=None, category=None, amount=None, schedule=None):
-        self.name = name
-        self.category = category
-        self.amount = amount
-        self.schedule = schedule
-
-    def __iter__(self):
-        return iter((
-            ('name',     self.name),
-            ('category', self.category),
-            ('amount',   self.amount),
-            ('schedule', dict(self.schedule)),
-        ))
-
-    def __repr__(self):
-        return repr(dict(self))
-
-    def __str__(self):
-        return ''.join(('    ', '\n    '.join(('{:8s} : {}'.format(*x) for x in self))))
 
 class Budget:
     @staticmethod
@@ -39,7 +11,7 @@ class Budget:
         start_balance = data['start_balance']
         start_date = get_default('start_date', data, None, str_to_date)
         duration = dict_to_duration(data['duration'])
-        budget = [ Item.from_dict(item) for item in data['budget'] ]
+        budget = [ TemplateTransaction.from_dict(item) for item in data['budget'] ]
         return Budget(start_balance=start_balance,
                       start_date=start_date,
                       duration=duration,

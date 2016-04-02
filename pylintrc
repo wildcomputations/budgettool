@@ -1,2 +1,6 @@
 [DESIGN]
 min-public-methods = 0
+
+[MESSAGES CONTROL]
+# C0326: Exactly one space required before assignment
+disable=C0326
