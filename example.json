@@ -1,9 +1,9 @@
 {
     "filetype" : "budgettool",
     "version": 1,
-    "start balance":4567.89,
-    "start date":"28 July 2016",
-    "duration": {"months":6},
+    "start_balance":4567.89,
+    "start_date":"28 July 2016",
+    "duration": {"weeks":25},
     "budget" : [
 	{ "name":"paycheck", "category":"income", "amount": 1234.56, "schedule":{ "type":"everynweek", "start":"23 March 2016", "step":2 } },
 	{ "name":"taxes",    "category":"bill",   "amount": -56789.21, "schedule":{"type":"everynmonth", "start":"30 June 2016", "step":6 } },
