@@ -1,4 +1,11 @@
+"""Containers for metadata associated with a transaction
+or entry in the ledger.
+"""
+from . import schedulers
+
 class Transaction:
+    """Minimum data associated with all transactions.
+    """
     def __init__(self, name, category, amount):
         self.name = name
         self.category = category
@@ -6,16 +13,20 @@ class Transaction:
 
 
 class TemplateTransaction:
+    """Template from which transactions can be generated on a schedule.
+    """
     @staticmethod
     def from_dict(data):
+        """Generate a transaction template from the standard dictionary storage format.
+        """
         name     = data['name']
         category = data['category']
         amount   = data['amount']
-        schedule = schedulers.get_schedule(data['schedule'])
+        schedule = schedulers.from_dict(data['schedule'])
         return TemplateTransaction(
             name=name, category=category, amount=amount, schedule=schedule)
 
-    def __init__(self, name=None, category=None, amount=None, schedule=None):
+    def __init__(self, name, category, amount, schedule):
         self.transaction = Transaction(name, category, amount)
         self.schedule = schedule
 

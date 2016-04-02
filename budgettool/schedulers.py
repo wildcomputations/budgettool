@@ -134,6 +134,8 @@ class Once:
 
     @staticmethod
     def from_dict(schedule):
+        """Generate a Once schedule from the standard dictionary storage format.
+        """
         date = str_to_date(schedule['date'])
         return Once(date)
 
@@ -197,22 +199,24 @@ class EveryNWeek:
 
     @staticmethod
     def from_dict(schedule):
+        """Generate a EveryNWeek schedule from the standard dictionary storage format.
+        """
         start = get_default('start', schedule, None, str_to_date)
         end   = get_default('end',   schedule, None, str_to_date)
         step  = get_default('step',  schedule, 1, int)
         return EveryNWeek(start, step, end)
 
     def __iter__(self):
-        rv = [
+        key_pairs = [
             ('type',  'everynweek'),
             ('start',  date_to_str(self.start)),
             ('step',   self.step),
         ]
 
         if self.end is not None:
-            rv.append(('end',    date_to_str(self.end)))
+            key_pairs.append(('end',    date_to_str(self.end)))
 
-        return iter(tuple(rv))
+        return iter(tuple(key_pairs))
 
     def __repr__(self):
         return repr(dict(self))
@@ -277,22 +281,24 @@ class EveryNMonth:
 
     @staticmethod
     def from_dict(schedule):
+        """Generate a EveryNMonth schedule from the standard dictionary storage format.
+        """
         start = get_default('start', schedule, None, str_to_date)
         end   = get_default('end',   schedule, None, str_to_date)
         step  = get_default('step',  schedule, 1, int)
         return EveryNMonth(start, step, end)
 
     def __iter__(self):
-        rv = [
+        key_pairs = [
             ('type',  'everynmonth'),
             ('start',  date_to_str(self.start)),
             ('step',   self.step),
         ]
 
         if self.end is not None:
-            rv.append(('end',    date_to_str(self.end)))
+            key_pairs.append(('end',    date_to_str(self.end)))
 
-        return iter(tuple(rv))
+        return iter(tuple(key_pairs))
 
     def __repr__(self):
         return repr(dict(self))
@@ -344,21 +350,23 @@ class Weekly:
 
     @staticmethod
     def from_dict(schedule):
+        """Generate a Weekly schedule from the standard dictionary storage format.
+        """
         start       = get_default('start', schedule, None, str_to_date)
         end         = get_default('end',   schedule, None, str_to_date)
         day_of_week = str_to_weekday(schedule['day'])
         return Weekly(day_of_week, start, end)
 
     def __iter__(self):
-        rv = [ ('type',  'weekly'), ('day', weekday_to_str(self.day_of_week))]
+        key_pairs = [ ('type',  'weekly'), ('day', weekday_to_str(self.day_of_week))]
 
         if self.start is not None:
-            rv.append(('start',  date_to_str(self.start)))
+            key_pairs.append(('start',  date_to_str(self.start)))
 
         if self.end is not None:
-            rv.append(('end',  date_to_str(self.end)))
+            key_pairs.append(('end',  date_to_str(self.end)))
 
-        return iter(tuple(rv))
+        return iter(tuple(key_pairs))
 
     def __repr__(self):
         return repr(dict(self))
@@ -410,21 +418,23 @@ class Monthly:
 
     @staticmethod
     def from_dict(schedule):
+        """Generate a Monthly schedule from the standard dictionary storage format.
+        """
         start        = get_default('start', schedule, None, str_to_date)
         end          = get_default('end',   schedule, None, str_to_date)
         day_of_month = int(schedule['day'])
         return Monthly(day_of_month, start, end)
 
     def __iter__(self):
-        rv = [ ('type',  'monthly'), ('day', self.day_of_month)]
+        key_pairs = [ ('type',  'monthly'), ('day', self.day_of_month)]
 
         if self.start is not None:
-            rv.append(('start',  date_to_str(self.start)))
+            key_pairs.append(('start',  date_to_str(self.start)))
 
         if self.end is not None:
-            rv.append(('end',  date_to_str(self.end)))
+            key_pairs.append(('end',  date_to_str(self.end)))
 
-        return iter(tuple(rv))
+        return iter(tuple(key_pairs))
 
     def __repr__(self):
         return repr(dict(self))
@@ -434,6 +444,10 @@ class Monthly:
 
 
 def from_dict(schedule):
+    """Return a scheduler based on the description in the provided dictionary.
+
+    schedule - a dictionary using the standard storage format.
+    """
     return {
         'once'        : Once,
         'everynweek'  : EveryNWeek,
