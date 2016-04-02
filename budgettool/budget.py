@@ -65,15 +65,6 @@ class Budget:
             else:
                 raise KeyError
 
-    # XXX delete modfy0() after modify() has been tested
-    def modify0(self, start_balance=None, start_date=None,
-               duration=None, budget=None, filename=None):
-        self.start_balance = self.start_balance if start_balance is None else start_balance
-        self.start_date    = self.start_date    if start_date    is None else start_date
-        self.duration      = self.duration      if duration      is None else duration
-        self.budget        = self.budget        if budget        is None else budget
-        self.filename      = self.filename      if filename      is None else filename
-
     def __iter__(self):
         return iter((
             ('filetype',     'budgettool'),
