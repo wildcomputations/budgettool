@@ -263,6 +263,17 @@ class TestSchedulers(unittest.TestCase):
                 self.assertGreater((item - start).days, x * 30.4 - 3)
                 self.assertLess((item - start).days, x * 30.4 + 3)
 
+        #specific bugs I've hit
+
+        # failure to handle duration in view()
+        sched = schedulers.Monthly(20,
+                                   date.today(),
+                                   date.today() + timedelta(30))
+        out = list(sched.view(date.today(), duration=timedelta(100)))
+        self.assertEqual(len(out), 1)
+        self.assertEqual(out[0].day, 20)
+
+
 
 if __name__ == '__main__':
     unittest.main()
