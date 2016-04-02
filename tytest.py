@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 from importlib import reload
 from budgettool import jsonparser
 from budgettool import budget

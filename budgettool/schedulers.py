@@ -5,7 +5,8 @@ Dates are returned as instances of datetime.date
 from calendar import monthrange
 import datetime
 import math
-from .fileutils import str_to_date, str_to_weekday, get_default
+from .fileutils import str_to_date, date_to_str, str_to_weekday, weekday_to_str, get_default
+
 
 def _check_calc_date_range(schedule_start,
                            user_start,
@@ -50,6 +51,7 @@ class _DayIncrIter:
         self.next_date += self.container.increment
         return out
 
+
 class _DayIncrContainer:
     """Fixed increment in days
     """
@@ -61,6 +63,7 @@ class _DayIncrContainer:
         self.increment = increment
     def __iter__(self):
         return _DayIncrIter(self)
+
 
 class _MonthIncrIter:
     """Increment in months."""
@@ -83,6 +86,7 @@ class _MonthIncrIter:
         self.next_month = datetime.date(next_year, (next_month - 1) % 12 + 1, 1)
 
         return out
+
 
 class _MonthIncrContainer:
     """Increment in months."""
@@ -127,6 +131,24 @@ class Once:
             return [self.date]
         else:
             return []
+
+    @staticmethod
+    def from_dict(schedule):
+        date = str_to_date(schedule['date'])
+        return Once(date)
+
+    def __iter__(self):
+        return iter((
+            ('type',  'once'),
+            ('date',  date_to_str(self.date)),
+        ))
+
+    def __repr__(self):
+        return repr(dict(self))
+
+    def __str__(self):
+        return repr(self)
+
 
 class EveryNWeek:
     """ Repeating schedule on weekly increments.
@@ -173,6 +195,32 @@ class EveryNWeek:
 
         return _DayIncrContainer(next_date, iter_end, step)
 
+    @staticmethod
+    def from_dict(schedule):
+        start = get_default('start', schedule, None, str_to_date)
+        end   = get_default('end',   schedule, None, str_to_date)
+        step  = get_default('step',  schedule, 1, int)
+        return EveryNWeek(start, step, end)
+
+    def __iter__(self):
+        rv = [
+            ('type',  'everynweek'),
+            ('start',  date_to_str(self.start)),
+            ('step',   self.step),
+        ]
+
+        if self.end is not None:
+            rv.append(('end',    date_to_str(self.end)))
+
+        return iter(tuple(rv))
+
+    def __repr__(self):
+        return repr(dict(self))
+
+    def __str__(self):
+        return repr(self)
+
+
 class EveryNMonth:
     """Event repeats on the same day every month.
     """
@@ -188,8 +236,8 @@ class EveryNMonth:
         end - cuttoff for last date to generate (non-inclusive)
         """
         self.start = start
-        self.step = step
-        self.end = end
+        self.step  = step
+        self.end   = end
 
     def view(self, start, end=None, duration=None):
         """The subset of events which fall within a window.
@@ -226,6 +274,32 @@ class EveryNMonth:
             start = datetime.date(start_year, start_month, 1)
 
         return _MonthIncrContainer(start, day, iter_end, self.step)
+
+    @staticmethod
+    def from_dict(schedule):
+        start = get_default('start', schedule, None, str_to_date)
+        end   = get_default('end',   schedule, None, str_to_date)
+        step  = get_default('step',  schedule, 1, int)
+        return EveryNMonth(start, step, end)
+
+    def __iter__(self):
+        rv = [
+            ('type',  'everynmonth'),
+            ('start',  date_to_str(self.start)),
+            ('step',   self.step),
+        ]
+
+        if self.end is not None:
+            rv.append(('end',    date_to_str(self.end)))
+
+        return iter(tuple(rv))
+
+    def __repr__(self):
+        return repr(dict(self))
+
+    def __str__(self):
+        return repr(self)
+
 
 class Weekly:
     """ Repeat every week on a specifc day of the week.
@@ -268,6 +342,31 @@ class Weekly:
 
         return _DayIncrContainer(iter_start, iter_end, datetime.timedelta(days=7))
 
+    @staticmethod
+    def from_dict(schedule):
+        start       = get_default('start', schedule, None, str_to_date)
+        end         = get_default('end',   schedule, None, str_to_date)
+        day_of_week = str_to_weekday(schedule['day'])
+        return Weekly(day_of_week, start, end)
+
+    def __iter__(self):
+        rv = [ ('type',  'weekly'), ('day', weekday_to_str(self.day_of_week))]
+
+        if self.start is not None:
+            rv.append(('start',  date_to_str(self.start)))
+
+        if self.end is not None:
+            rv.append(('end',  date_to_str(self.end)))
+
+        return iter(tuple(rv))
+
+    def __repr__(self):
+        return repr(dict(self))
+
+    def __str__(self):
+        return repr(self)
+
+
 class Monthly:
     """Repeat every month on the specified day"""
 
@@ -309,42 +408,36 @@ class Monthly:
 
         return _MonthIncrContainer(start, self.day_of_month, end, 1)
 
+    @staticmethod
+    def from_dict(schedule):
+        start        = get_default('start', schedule, None, str_to_date)
+        end          = get_default('end',   schedule, None, str_to_date)
+        day_of_month = int(schedule['day'])
+        return Monthly(day_of_month, start, end)
 
-def _once(schedule):
-    start = get_default('start', schedule, None, str_to_date)
-    end = get_default('end', schedule, None, str_to_date)
-    date = str_to_date(schedule['date'])
-    return Once(date)
+    def __iter__(self):
+        rv = [ ('type',  'monthly'), ('day', self.day_of_month)]
 
-def _everynweek(schedule):
-    start = get_default('start', schedule, None, str_to_date)
-    end = get_default('end', schedule, None, str_to_date)
-    step = get_default('step', schedule, 1, int)
-    return EveryNWeek(start, step, end)
+        if self.start is not None:
+            rv.append(('start',  date_to_str(self.start)))
 
-def _everynmonth(schedule):
-    start = get_default('start', schedule, None, str_to_date)
-    end = get_default('end', schedule, None, str_to_date)
-    step = get_default('step', schedule, 1, int)
-    return EveryNMonth(start, end, step)
+        if self.end is not None:
+            rv.append(('end',  date_to_str(self.end)))
 
-def _weekly(schedule):
-    start = get_default('start', schedule, None, str_to_date)
-    end = get_default('end', schedule, None, str_to_date)
-    day_of_week = str_to_weekday(schedule['day'])
-    return Weekly(day_of_week, start, end)
+        return iter(tuple(rv))
 
-def _monthly(schedule):
-    start = get_default('start', schedule, None, str_to_date)
-    end = get_default('end', schedule, None, str_to_date)
-    day_of_month = int(schedule['day'])
-    return Monthly(day_of_month, start, end)
+    def __repr__(self):
+        return repr(dict(self))
 
-def get_schedule(schedule):
+    def __str__(self):
+        return repr(self)
+
+
+def from_dict(schedule):
     return {
-        'once'        : _once,
-        'everynweek'  : _everynweek,
-        'everynmonth' : _everynmonth,
-        'weekly'      : _weekly,
-        'monthly'     : _monthly,
-    }[schedule['type'].lower()](schedule)
+        'once'        : Once,
+        'everynweek'  : EveryNWeek,
+        'everynmonth' : EveryNMonth,
+        'weekly'      : Weekly,
+        'monthly'     : Monthly,
+    }[schedule['type'].lower()].from_dict(schedule)

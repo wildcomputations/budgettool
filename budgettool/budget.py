@@ -8,7 +8,7 @@ class Item:
         name     = data['name']
         category = data['category']
         amount   = data['amount']
-        schedule = schedulers.get_schedule(data['schedule'])
+        schedule = schedulers.from_dict(data['schedule'])
         return Item(name=name, category=category, amount=amount, schedule=schedule)
 
     def __init__(self, name=None, category=None, amount=None, schedule=None):
@@ -22,6 +22,7 @@ class Item:
             ('name',     self.name),
             ('category', self.category),
             ('amount',   self.amount),
+            ('schedule', dict(self.schedule)),
         ))
 
     def __repr__(self):

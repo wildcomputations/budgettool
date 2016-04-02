@@ -35,12 +35,11 @@ def dict_to_duration(data):
     return datetime.timedelta(**data)
 
 def duration_to_dict(duration):
-    weeks = duration.days // 7
-    days = duration.days % 7
-    rv = { 'weeks' : weeks }
-    if days:
-        rv['days'] = days
-    return rv
+    days = duration.days
+    if days % 7:
+        return { 'days' : days }
+    else:
+        return { 'weeks' : days // 7 }
 
 def get_default(key, values, default, func=None):
     if key in values:
