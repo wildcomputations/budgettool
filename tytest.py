@@ -25,6 +25,6 @@ print(dict(b))
 
 b.modify(start_balance=5432.10, duration=dt.timedelta(weeks=26))
 
-print(json.dumps(dict(b), sort_keys=True, indent=4))
+print(jsonparser.to_string(dict(b)))
 
 jsonparser.save(dict(b), filename='save_'+filename)
