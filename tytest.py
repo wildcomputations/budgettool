@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import datetime as dt
+import json
 
 from importlib import reload
 from budgettool import jsonparser
@@ -21,12 +22,9 @@ reload(budget)
 b = budget.Budget.from_dict(d, filename)
 
 print(dict(b))
-print(repr(b))
-print(b._str_budget())
-print(b)
 
 b.modify(start_balance=5432.10, duration=dt.timedelta(weeks=26))
 
-print(b)
+print(json.dumps(dict(b), sort_keys=True, indent=4))
 
 jsonparser.save(dict(b), filename='save_'+filename)
