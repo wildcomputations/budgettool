@@ -108,6 +108,9 @@ class _MonthIncrContainer:
 class Once:
     """ One time transaction. Generates a single event on the specified date.
     """
+
+    schedule_type = 'once'
+
     def __init__(self, date):
         self.date = date
 
@@ -141,7 +144,6 @@ class Once:
 
     def __iter__(self):
         return iter((
-            ('type',  'once'),
             ('date',  date_to_str(self.date)),
         ))
 
@@ -156,6 +158,9 @@ class EveryNWeek:
     """ Repeating schedule on weekly increments.
     For example, repeat every 2 weeks starting on Jan 1.
     """
+
+    schedule_type = 'everynweek'
+
     def __init__(self, start, step=1, end=None):
         """Create the schedule. By default it will repeat every week.
 
@@ -208,7 +213,6 @@ class EveryNWeek:
 
     def __iter__(self):
         key_pairs = [
-            ('type',  'everynweek'),
             ('start',  date_to_str(self.start)),
             ('step',   self.step),
         ]
@@ -228,6 +232,8 @@ class EveryNWeek:
 class EveryNMonth:
     """Event repeats on the same day every month.
     """
+
+    schedule_type = 'everynmonth'
 
     def __init__(self, start, step=1, end=None):
         """
@@ -290,7 +296,6 @@ class EveryNMonth:
 
     def __iter__(self):
         key_pairs = [
-            ('type',  'everynmonth'),
             ('start',  date_to_str(self.start)),
             ('step',   self.step),
         ]
@@ -311,6 +316,9 @@ class Weekly:
     """ Repeat every week on a specifc day of the week.
     For example, repeat every Tuesday.
     """
+
+    schedule_type = 'weekly'
+
     def __init__(self, day_of_week, start=None, end=None):
         """ Repeat every week on the specified day of the week.
         Defaults to only generating events in the future.
@@ -358,7 +366,7 @@ class Weekly:
         return Weekly(day_of_week, start, end)
 
     def __iter__(self):
-        key_pairs = [ ('type',  'weekly'), ('day', weekday_to_str(self.day_of_week))]
+        key_pairs = [ ('day', weekday_to_str(self.day_of_week), )]
 
         if self.start is not None:
             key_pairs.append(('start',  date_to_str(self.start)))
@@ -377,6 +385,8 @@ class Weekly:
 
 class Monthly:
     """Repeat every month on the specified day"""
+
+    schedule_type = 'monthly'
 
     def __init__(self, day_of_month, start=None, end=None):
         """Create a schedule which repeats every month on a specific day.
@@ -426,7 +436,7 @@ class Monthly:
         return Monthly(day_of_month, start, end)
 
     def __iter__(self):
-        key_pairs = [ ('type',  'monthly'), ('day', self.day_of_month)]
+        key_pairs = [ ('day', self.day_of_month), ]
 
         if self.start is not None:
             key_pairs.append(('start',  date_to_str(self.start)))
@@ -454,4 +464,4 @@ def from_dict(schedule):
         'everynmonth' : EveryNMonth,
         'weekly'      : Weekly,
         'monthly'     : Monthly,
-    }[schedule['type'].lower()].from_dict(schedule)
+    }[schedule['type'].lower()].from_dict(schedule['data'])

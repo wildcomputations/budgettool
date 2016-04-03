@@ -35,6 +35,7 @@ class TemplateTransaction:
             ('name',     self.transaction.name),
             ('category', self.transaction.category),
             ('amount',   self.transaction.amount),
+            ('schedule', { 'type': self.schedule.schedule_type, 'data': dict(self.schedule) } ),
         ))
 
     def __repr__(self):
@@ -42,4 +43,3 @@ class TemplateTransaction:
 
     def __str__(self):
         return ''.join(('    ', '\n    '.join(('{:8s} : {}'.format(*x) for x in self))))
-

@@ -5,10 +5,10 @@
     "start_date":"28 July 2016",
     "duration": {"weeks":25},
     "budget" : [
-	{ "name":"paycheck", "category":"income", "amount": 1234.56, "schedule":{ "type":"everynweek", "start":"23 March 2016", "step":2 } },
-	{ "name":"taxes",    "category":"bill",   "amount": -56789.21, "schedule":{"type":"everynmonth", "start":"30 June 2016", "step":6 } },
-	{ "name":"electric", "category":"bill",   "amount": -123.32, "schedule":{ "type":"monthly", "day":12 } },
-	{ "name":"lunch",    "category":"bill",   "amount": -123.32, "schedule":{ "type":"weekly", "day":"friday" } },
-	{ "name":"baz",      "category":"bill",   "amount": -345.23, "schedule":{ "type":"once", "date":"16 March 2016" }}
+	{ "name":"paycheck", "category":"income", "amount": 1234.56, "schedule":{ "type":"everynweek", "data" : { "start":"23 March 2016", "step":2 } } },
+	{ "name":"taxes",    "category":"bill",   "amount": -6789.21, "schedule":{"type":"everynmonth", "data" : { "start":"30 June 2016", "step":6 } } },
+	{ "name":"electric", "category":"bill",   "amount": -123.32, "schedule":{ "type":"monthly", "data" : { "day":12 } } },
+	{ "name":"lunch",    "category":"bill",   "amount": -123.32, "schedule":{ "type":"weekly", "data" : { "day":"friday" } } },
+	{ "name":"baz",      "category":"bill",   "amount": -345.23, "schedule":{ "type":"once", "data" : { "date":"16 March 2016" } } }
     ]
 }
