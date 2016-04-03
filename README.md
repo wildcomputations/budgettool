@@ -14,4 +14,4 @@ To run the unit tests run
 python3 -m unittest
 ```
 
-(Kanban board)[https://waffle.io/wildcomputations/budgettool]
+[Kanban board](https://waffle.io/wildcomputations/budgettool)
