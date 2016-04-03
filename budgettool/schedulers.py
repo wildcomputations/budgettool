@@ -147,12 +147,6 @@ class Once:
             ('date',  date_to_str(self.date)),
         ))
 
-    def __repr__(self):
-        return repr(dict(self))
-
-    def __str__(self):
-        return repr(self)
-
 
 class EveryNWeek:
     """ Repeating schedule on weekly increments.
@@ -221,12 +215,6 @@ class EveryNWeek:
             key_pairs.append(('end',    date_to_str(self.end)))
 
         return iter(tuple(key_pairs))
-
-    def __repr__(self):
-        return repr(dict(self))
-
-    def __str__(self):
-        return repr(self)
 
 
 class EveryNMonth:
@@ -305,12 +293,6 @@ class EveryNMonth:
 
         return iter(tuple(key_pairs))
 
-    def __repr__(self):
-        return repr(dict(self))
-
-    def __str__(self):
-        return repr(self)
-
 
 class Weekly:
     """ Repeat every week on a specifc day of the week.
@@ -376,12 +358,6 @@ class Weekly:
 
         return iter(tuple(key_pairs))
 
-    def __repr__(self):
-        return repr(dict(self))
-
-    def __str__(self):
-        return repr(self)
-
 
 class Monthly:
     """Repeat every month on the specified day"""
@@ -445,12 +421,6 @@ class Monthly:
             key_pairs.append(('end',  date_to_str(self.end)))
 
         return iter(tuple(key_pairs))
-
-    def __repr__(self):
-        return repr(dict(self))
-
-    def __str__(self):
-        return repr(self)
 
 
 def from_dict(schedule):

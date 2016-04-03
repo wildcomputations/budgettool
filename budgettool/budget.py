@@ -46,20 +46,3 @@ class Budget:
             ('duration',     duration_to_dict(self.duration)),
             ('budget',       [dict(item) for item in self.budget]),
         ))
-
-    def __repr__(self):
-        return repr(dict(self))
-
-    def _str_budget(self):
-        return ''.join(('\n', '\n\n'.join(('{:s}'.format(str(item)) for item in self.budget))))
-
-    def __str__(self):
-        strdata = (
-            ('filetype',     'budgettool'),
-            ('version',      1),
-            ('start_blance', self.start_balance),
-            ('start_date',   date_to_str(self.start_date)),
-            ('duration',     str(duration_to_dict(self.duration))),
-            ('budget',       self._str_budget()),
-        )
-        return '\n'.join(('{:12s} : {}'.format(*x) for x in strdata))
