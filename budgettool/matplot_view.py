@@ -1,4 +1,7 @@
+"""Plot graph of forecast."""
+
 def plot_forecast(forecast):
+    """Plot a graph of the forecast."""
     import matplotlib.pyplot as plt
     import numpy as np
     x_values = np.array([entry.date for entry in forecast])
