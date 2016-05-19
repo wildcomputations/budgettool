@@ -89,4 +89,4 @@ class TemplateTransaction:
                                  for date, amount in self.exceptions.items()
                              ]
                             ) )
-        return encoded
+        return iter(encoded)

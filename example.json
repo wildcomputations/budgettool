@@ -5,10 +5,10 @@
     "start_date":"28 July 2016",
     "duration": {"weeks":25},
     "budget" : [
-	{ "name":"paycheck", "category":"income", "amount": 1234.56, "schedule":{ "type":"everynweek", "data" : { "start":"23 March 2016", "step":2 } }
+	{ "name":"paycheck", "category":"income", "amount": 1234.56, "schedule":{ "type":"everynweek", "data" : { "start":"23 March 2016", "step":2 } },
           "except":[ {"date":"20 April 2016", "amount":1000.00}, {"date":"4 May 2016", "amount":2000.00} ]
         },
-	{ "name":"taxes",    "category":"bill",   "amount": -6789.21, "schedule":{"type":"everynmonth", "data" : { "start":"30 June 2016", "step":6 } }
+	{ "name":"taxes",    "category":"bill",   "amount": -6789.21, "schedule":{"type":"everynmonth", "data" : { "start":"30 June 2016", "step":6 } },
           "except":[ {"date":"30 June 2016", "amount":-3000.00} ]
         },
 	{ "name":"electric", "category":"bill",   "amount": -123.32, "schedule":{ "type":"monthly", "data" : { "day":12 } } },
