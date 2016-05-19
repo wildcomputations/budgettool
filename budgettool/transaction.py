@@ -13,8 +13,8 @@ class Transaction:
         self.amount = amount
 
 class _TransactionIterator:
-    def __init__(self, default_amount, schedule_iterator, exceptions):
-        self.default_amount = default_amount
+    def __init__(self, default_transaction, schedule_iterator, exceptions):
+        self.default_transaction = default_transaction
         self.schedule_iterator = schedule_iterator
         self.exceptions = exceptions
 
@@ -24,8 +24,12 @@ class _TransactionIterator:
     def __next__(self):
         next_date = next(self.schedule_iterator)
         if next_date in self.exceptions:
-            return (next_date, self.exceptions[next_date])
-        return (next_date, self.default_amount)
+            except_transaction = Transaction(
+                self.default_transaction.name,
+                self.default_transaction.category,
+                self.exceptions[next_date])
+            return (next_date, except_transaction)
+        return (next_date, self.default_transaction)
 
 class _TransactionView:
     def __init__(self, transaction, schedule_view, exceptions):
@@ -34,7 +38,7 @@ class _TransactionView:
         self.exceptions = exceptions
 
     def __iter__(self):
-        return _TransactionIterator(self.transaction.amount,
+        return _TransactionIterator(self.transaction,
                                     iter(self.schedule_view),
                                     self.exceptions)
 
