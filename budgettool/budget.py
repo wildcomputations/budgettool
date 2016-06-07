@@ -1,5 +1,4 @@
-import datetime
-from . import schedulers
+from . import forecast
 from .transaction import TemplateTransaction
 from .fileutils import str_to_date, date_to_str, dict_to_duration, duration_to_dict, get_default
 
@@ -36,6 +35,14 @@ class Budget:
                 setattr(self, k, v)
             else:
                 raise KeyError
+
+    def forecast(self):
+        """Generate a list of transactions and predicted balance from this budget."""
+        return forecast.forecast(
+            self.start_balance,
+            self.budget,
+            self.start_date,
+            duration=self.duration)
 
     def __iter__(self):
         return iter((

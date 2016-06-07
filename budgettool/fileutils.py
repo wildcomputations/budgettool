@@ -1,8 +1,9 @@
 import datetime
 
 def str_to_date(datestr):
-    """TODO: expand this to support other formats automatically?"""
-    return datetime.datetime.strptime(datestr, '%d %B %Y')
+    """Convert a string into a datetime.date"""
+    #TODO: expand this to support other formats automatically?
+    return datetime.datetime.strptime(datestr, '%d %B %Y').date()
 
 def date_to_str(date):
     return date.strftime('%d %B %Y')

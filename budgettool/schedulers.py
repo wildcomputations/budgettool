@@ -96,6 +96,7 @@ class _MonthIncrContainer:
 
         Increment by 'increment' months.
         """
+        assert end_date is not None
         self.start_month = start_month
         self.day = day
         self.end_date = end_date
@@ -400,7 +401,7 @@ class Monthly:
             start += datetime.timedelta(31)
         start.replace(day=1)
 
-        return _MonthIncrContainer(start, self.day_of_month, end, 1)
+        return _MonthIncrContainer(start, self.day_of_month, iter_end, 1)
 
     @staticmethod
     def from_dict(schedule):

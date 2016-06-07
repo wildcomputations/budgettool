@@ -1,4 +1,6 @@
+"""Predict future balances and transactions."""
 class ForecastEntry:
+    """Transaction at a specific date in a forecast."""
     def __init__(self, date, transaction, balance):
         self.date = date
         self.transaction = transaction
