@@ -8,7 +8,7 @@ def cmdline_args():
     """
     parser = argparse.ArgumentParser(description="generate csv file of transactions from budget")
     parser.add_argument("in_budget", metavar="budget", help="file containing a budget")
-    parser.add_argument("out_csv", metavar="out", help="filename for output csv")
+    parser.add_argument("-o", dest="out_csv", metavar="out", help="filename for output csv")
 
     return parser.parse_args()
 
@@ -17,5 +17,8 @@ if __name__ == "__main__":
 
     budget = bt.budget_from_json(args.in_budget)
     forecast = budget.forecast()
-    bt.save_forecast_to_csv(forecast, args.out_csv)
+    if args.out_csv is None:
+        bt.plot_forecast(forecast)
+    else:
+        bt.save_forecast_to_csv(forecast, args.out_csv)
 
