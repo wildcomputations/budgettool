@@ -11,6 +11,9 @@ class Transaction:
         self.name = name
         self.category = category
         self.amount = amount
+    def __repr__(self):
+        return "Transaction({name}:{category} ${amount})".format(
+            name=self.name, category = self.category, amount=self.amount)
 
 class _TransactionIterator:
     def __init__(self, default_transaction, schedule_iterator, exceptions):
