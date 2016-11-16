@@ -21,9 +21,9 @@ def forecast(starting_balance, transactions, start, end=None, duration=None):
     """
     # generate all entries
     entries = [
-        ForecastEntry(date, template.transaction, 0)
+        ForecastEntry(date, transaction, 0)
         for template in transactions
-        for date in template.schedule.view(start, end, duration)]
+        for date, transaction in template.view(start, end, duration)]
 
     # sort by date
     entries = sorted(entries, key=lambda entry: entry.date)
