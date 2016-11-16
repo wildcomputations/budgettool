@@ -28,8 +28,14 @@ class TestTransactions(unittest.TestCase):
             (datetime.date(2016, 8, 31), transaction.Transaction(name, category, 100.00))
         ]
         actual = list(view)
-        print("Expected transactions", expected)
-        print("Actual transactions  ", actual)
+        self.assertEqual(actual, expected)
+
+        dict_repr = dict(template)
+        template_2 = transaction.TemplateTransaction.from_dict(
+            dict_repr)
+        view_2 = template_2.view(start = datetime.date(2016, 6, 1),
+                                 duration=datetime.timedelta(4 * 30))
+        actual = list(view_2)
         self.assertEqual(actual, expected)
 
 

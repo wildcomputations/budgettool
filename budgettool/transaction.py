@@ -1,16 +1,16 @@
 """Containers for metadata associated with a transaction
 or entry in the ledger.
 """
+import collections
+
 from . import schedulers
 from . import fileutils
 
-class Transaction:
+_Transaction = collections.namedtuple("Transaction",
+                                      ["name", "category", "amount"])
+class Transaction(_Transaction):
     """Minimum data associated with all transactions.
     """
-    def __init__(self, name, category, amount):
-        self.name = name
-        self.category = category
-        self.amount = amount
     def __repr__(self):
         return "Transaction({name}:{category} ${amount})".format(
             name=self.name, category = self.category, amount=self.amount)
@@ -60,8 +60,8 @@ class TemplateTransaction:
         if 'except' in data:
             for pair in data['except']:
                 date = fileutils.str_to_date(pair['date'])
-                amount = pair['amount']
-                exceptions[date] = amount
+                except_amount = pair['amount']
+                exceptions[date] = except_amount
         return TemplateTransaction(
             name=name, category=category, amount=amount,
             schedule=schedule, exceptions=exceptions)
