@@ -36,13 +36,15 @@ class Budget:
             else:
                 raise KeyError
 
-    def forecast(self):
+    def forecast(self, start_date=None, start_balance=None, end_date=None):
         """Generate a list of transactions and predicted balance from this budget."""
+        start = start_date if start_date else self.start_date
+        duration = (end_date - start) if end_date else self.duration
         return forecast.forecast(
-            self.start_balance,
+            start_balance if start_balance else self.start_balance,
             self.budget,
-            self.start_date,
-            duration=self.duration)
+            start,
+            duration=duration)
 
     def __iter__(self):
         return iter((
